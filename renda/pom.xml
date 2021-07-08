@@ -22,16 +22,6 @@
     </dependency>
   </dependencies>
   <build>
-    <resources>
-      <resource>
-        <directory>src\main\resources</directory>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src\test\resources</directory>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -48,9 +38,12 @@
         <!-- JUnit 5 requires Surefire version 2.22.0 or higher -->
         <version>3.0.0-M1</version>
         <configuration>
-          <includes>
-            <include>*.java</include>
-          </includes>
+<!--           <includes> -->
+<!--             <include>*.java</include> -->
+<!--           </includes> -->
+          <excludes>
+            <exclude>*.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
