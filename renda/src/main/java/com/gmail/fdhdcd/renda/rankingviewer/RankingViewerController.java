@@ -41,7 +41,6 @@ public class RankingViewerController {
     @FXML
     private TableColumn<Result, String> time;
 
-    private ObservableList<Result> listFromDB = FXCollections.observableArrayList();
     private Set<Integer> secondsSet = new HashSet<>(11, 1);
 
     @FXML
