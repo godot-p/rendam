@@ -2,7 +2,10 @@ package com.gmail.fdhdcd.renda.rankingviewer;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.gmail.fdhdcd.renda.Main;
 import com.gmail.fdhdcd.renda.addresult.Result;
@@ -39,46 +42,70 @@ public class RankingViewerController {
     private TableColumn<Result, String> time;
 
     private ObservableList<Result> listFromDB = FXCollections.observableArrayList();
+    private Set<Integer> secondsSet = new HashSet<>(11, 1);
 
     @FXML
     public void initialize() {
-        List<IntegerItem> l = new ArrayList<>();
+        List<IntegerItem> list = new ArrayList<>();
         for (int i = 1; i < 11; i++) {
             IntegerItem item = new IntegerItem(i);
             item.bProperty().addListener((observable, oldVal, newVal) -> {
-                System.out.println(String.valueOf(oldVal) + "->" + String.valueOf(newVal));
+                if (newVal) {
+                    secondsSet.add(item.iProperty().intValue());
+                } else {
+                    secondsSet.remove(item.iProperty().intValue());
+                }
+                loadRanking();
             });
-            l.add(item);
+            list.add(item);
+            secondsSet.add(i);
         }
-        ObservableList<IntegerItem> o = FXCollections.observableList(l);
+        ObservableList<IntegerItem> o = FXCollections.observableList(list);
         listView.setItems(o);
+
         listView.setCellFactory(CheckBoxListCell.forListView(i -> i.bProperty()));
-        this.name.setCellValueFactory(new PropertyValueFactory<Result, String>("name"));
-        this.seconds.setCellValueFactory(new PropertyValueFactory<Result, String>("seconds"));
-        this.clicks.setCellValueFactory(new PropertyValueFactory<Result, String>("clicks"));
-        this.cps.setCellValueFactory(new PropertyValueFactory<Result, String>("cps"));
-        this.time.setCellValueFactory(new PropertyValueFactory<Result, String>("time"));
-        if (Main.firstController.isSynced()) {
-            loadRankingFromDB();
-        } else {
-            this.tableView.setItems(Main.oList);
-        }
+
+        name.setCellValueFactory(new PropertyValueFactory<Result, String>("name"));
+        seconds.setCellValueFactory(new PropertyValueFactory<Result, String>("seconds"));
+        clicks.setCellValueFactory(new PropertyValueFactory<Result, String>("clicks"));
+        cps.setCellValueFactory(new PropertyValueFactory<Result, String>("cps"));
+        time.setCellValueFactory(new PropertyValueFactory<Result, String>("time"));
+
+        name.setMinWidth(20);
+        seconds.setMinWidth(20);
+        clicks.setMinWidth(20);
+        cps.setMinWidth(20);
+        time.setMinWidth(20);
+
+        loadRanking();
     }
 
-    private void loadRankingFromDB() {
-        try {
-            listFromDB.clear();
-            listFromDB.addAll(ResultDAO2.getInstance().readFromDB());
-            tableView.setItems(listFromDB);
-        } catch (SQLException e) {
-            ErrorAlertGenerator.generate(e);
+    private void loadRanking() {
+        List<Result> resultList = List.of(); //initialize in case of exception
+        if (Main.firstController.isSynced()) {
+            try {
+                resultList = ResultDAO2.getInstance().readFromDB();
+            } catch (SQLException e) {
+                ErrorAlertGenerator.generate(e);
+            }
+        } else {
+            resultList = Main.oList;
         }
+        ObservableList<Result> filteredList = FXCollections.observableList(resultList.stream().filter(r -> {
+            for (int i : secondsSet) {
+                if (i == r.getSeconds()) {
+                    return true;
+                }
+            }
+            return false;
+        }).collect(Collectors.toList()));
+        tableView.setItems(filteredList);
     }
 
     private class IntegerItem {
 
         private ReadOnlyIntegerWrapper i = new ReadOnlyIntegerWrapper();
-        private SimpleBooleanProperty b = new SimpleBooleanProperty(false);
+        private SimpleBooleanProperty b = new SimpleBooleanProperty(true);
 
         public IntegerItem(int num) {
             i.set(num);
