@@ -175,6 +175,7 @@ public class Controller {
             Scene scene = new Scene(root);
             Stage stage = new Stage();
             stage.setScene(scene);
+            stage.setMinHeight(120);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -273,6 +274,7 @@ public class Controller {
             stage.setScene(scene);
             stage.initOwner(Main.stage);
             stage.initModality(Modality.WINDOW_MODAL);
+            stage.setMinWidth(200);
             stage.setMinHeight(185 + 30);
             stage.showAndWait();
         } catch (IOException e) {
