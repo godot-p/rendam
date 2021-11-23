@@ -96,11 +96,15 @@ public class ResultDAO2 {
     }
 
     public void openConnection() throws SQLException {
+        closeConnection();
+        checkIfNull();
+        con = DriverManager.getConnection("jdbc:mysql://" + address + "/" + database, user, password);
+    }
+
+    public void closeConnection() throws SQLException {
         if (con != null) {
             con.close();
         }
-        checkIfNull();
-        con = DriverManager.getConnection("jdbc:mysql://" + address + "/" + database, user, password);
     }
 
     private void checkIfNull() {

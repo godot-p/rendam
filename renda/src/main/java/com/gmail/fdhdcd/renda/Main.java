@@ -1,9 +1,11 @@
 package com.gmail.fdhdcd.renda;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.gmail.fdhdcd.renda.addresult.Result;
+import com.gmail.fdhdcd.renda.util.ResultDAO2;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -35,7 +37,13 @@ public class Main extends Application {
             primaryStage.setScene(new Scene(root));
             primaryStage.setResizable(false);
             primaryStage.show();
-            primaryStage.setOnCloseRequest(req -> Platform.exit());
+            primaryStage.setOnCloseRequest(req -> {
+                try {
+                    ResultDAO2.getInstance().closeConnection();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            });
         } catch(Exception e) {
             e.printStackTrace();
         }
